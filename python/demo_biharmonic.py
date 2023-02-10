@@ -116,13 +116,12 @@ import numpy as np
 import ufl
 from dolfinx import fem, io, mesh, plot
 from dolfinx.mesh import CellType, GhostMode
-from ufl import (CellDiameter, FacetNormal, avg, div, dS, dx, grad, inner,
-                 jump, pi, sin)
+from ufl import CellDiameter, FacetNormal, avg, div, dS, dx, grad, inner, jump, pi, sin
 
 from mpi4py import MPI
 from petsc4py.PETSc import ScalarType
-
 # -
+
 
 # We begin by using {py:func}`create_rectangle
 # <dolfinx.mesh.create_rectangle>` to create a rectangular
@@ -130,10 +129,13 @@ from petsc4py.PETSc import ScalarType
 # finite element {py:class}`FunctionSpace <dolfinx.fem.FunctionSpace>`
 # $V$ on the mesh.
 
-msh = mesh.create_rectangle(comm=MPI.COMM_WORLD,
-                            points=((0.0, 0.0), (1.0, 1.0)), n=(32, 32),
-                            cell_type=CellType.triangle,
-                            ghost_mode=GhostMode.shared_facet)
+msh = mesh.create_rectangle(
+    comm=MPI.COMM_WORLD,
+    points=((0.0, 0.0), (1.0, 1.0)),
+    n=(32, 32),
+    cell_type=CellType.triangle,
+    ghost_mode=GhostMode.shared_facet,
+)
 V = fem.FunctionSpace(msh, ("Lagrange", 2))
 
 # The second argument to {py:class}`FunctionSpace
@@ -150,13 +152,16 @@ V = fem.FunctionSpace(msh, ("Lagrange", 2))
 # `False` otherwise.
 
 facets = mesh.locate_entities_boundary(
-    msh, dim=1,
-    marker=lambda x: np.logical_or.reduce((
-        np.isclose(x[0], 0.0),
-        np.isclose(x[0], 1.0),
-        np.isclose(x[1], 0.0),
-        np.isclose(x[1], 1.0)
-    ))
+    msh,
+    dim=1,
+    marker=lambda x: np.logical_or.reduce(
+        (
+            np.isclose(x[0], 0.0),
+            np.isclose(x[0], 1.0),
+            np.isclose(x[1], 0.0),
+            np.isclose(x[1], 1.0),
+        )
+    ),
 )
 
 # We now find the degrees-of-freedom that are associated with the
@@ -186,7 +191,7 @@ bc = fem.dirichletbc(value=ScalarType(0), dofs=dofs, V=V)
 alpha = ScalarType(8.0)
 h = CellDiameter(msh)
 n = FacetNormal(msh)
-h_avg = (h('+') + h('-')) / 2.0
+h_avg = (h("+") + h("-")) / 2.0
 
 # After that, we can define the variational problem consisting of the bilinear
 # form $a$ and the linear form $L$. The source term is prescribed as
@@ -204,10 +209,12 @@ v = ufl.TestFunction(V)
 x = ufl.SpatialCoordinate(msh)
 f = 4.0 * pi**4 * sin(pi * x[0]) * sin(pi * x[1])
 
-a = inner(div(grad(u)), div(grad(v))) * dx \
-    - inner(avg(div(grad(u))), jump(grad(v), n)) * dS \
-    - inner(jump(grad(u), n), avg(div(grad(v)))) * dS \
+a = (
+    inner(div(grad(u)), div(grad(v))) * dx
+    - inner(avg(div(grad(u))), jump(grad(v), n)) * dS
+    - inner(jump(grad(u), n), avg(div(grad(v)))) * dS
     + alpha / h_avg * inner(jump(grad(u), n), jump(grad(v), n)) * dS
+)
 L = inner(f, v) * dx
 # -
 
@@ -217,9 +224,9 @@ L = inner(f, v) * dx
 # case we use a direct (LU) solver. The {py:func}`solve
 # <dolfinx.fem.LinearProblem.solve>` will compute a solution.
 
-problem = fem.petsc.LinearProblem(a, L, bcs=[bc],
-                                  petsc_options={"ksp_type": "preonly",
-                                                 "pc_type": "lu"})
+problem = fem.petsc.LinearProblem(
+    a, L, bcs=[bc], petsc_options={"ksp_type": "preonly", "pc_type": "lu"}
+)
 uh = problem.solve()
 
 # The solution can be written to a  {py:class}`XDMFFile
@@ -234,6 +241,7 @@ with io.XDMFFile(msh.comm, "out_biharmonic/biharmonic.xdmf", "w") as file:
 # +
 try:
     import pyvista
+
     cells, types, x = plot.create_vtk_mesh(V)
     grid = pyvista.UnstructuredGrid(cells, types, x)
     grid.point_data["u"] = uh.x.array.real
