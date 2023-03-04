@@ -2,7 +2,7 @@
 
 This repository contains some demos and resources for the Finite Element software [DOLFINx](https://github.com/FEniCS/dolfinx), which is part of [FEniCSx](https://github.com/FEniCS/dolfinx).
 
-The material has been created by @juliusgh in the scope of the course [Simulation Software Engineering](https://github.com/Simulation-Software-Engineering) at the University of Stuttgart.
+The material has been created in the scope of the course [Simulation Software Engineering](https://github.com/Simulation-Software-Engineering) at the University of Stuttgart.
 
 ## Demos
 
