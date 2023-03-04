@@ -40,9 +40,14 @@ As an example, we create a mesh consisting of 32 x 32 triangles on the unit squa
 ### DOLFINx (Python)
 
 ```python
+msh = mesh.create_unit_square(comm=MPI.COMM_WORLD, nx=32, ny=32)
+
+# or equivalently
 msh = mesh.create_unit_square(comm=MPI.COMM_WORLD, nx=32, ny=32,
-                              cell_type=mesh.CellType.triangle)
-# or
+                              cell_type=mesh.CellType.triangle,
+                              ghost_mode=mesh.GhostMode.shared_faced,
+                              partitioner=None)
+# or equivalently
 msh = mesh.create_rectangle(comm=MPI.COMM_WORLD,
                             points=((0.0, 0.0), (1.0, 1.0)),
                             n=(32, 32),
