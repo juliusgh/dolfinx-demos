@@ -1,5 +1,11 @@
 # DOLFIN/DOLFINx Cheat Sheet
 
+This cheat sheet can serve as a compact lookup table when migrating code for legacy DOLFIN to the new DOLFINx. For more details and background information you should consider following resources:
+
+- <https://docs.fenicsproject.org/dolfinx/main/python/>
+- <https://docs.fenicsproject.org/dolfinx/main/cpp/>
+- <https://jsdokken.com/dolfinx-tutorial/>
+
 ## Import/include the most important modules/headers
 
 ### DOLFINx (Python)
@@ -226,7 +232,7 @@ The variational problem
 $$
  \begin{align}
  a(u, v) &:= \int_{\Omega} \nabla u \cdot \nabla v \, {\rm d} x, \\
- L(v)    &:= \int_{\Omega} f v \, {\rm d} x + \int_{\Gamma_{N}} g v \, {\rm d} s.
+ L(v)    &:= \int_{\Omega} f v \, {\rm d} x + \int_{\Gamma_{N}} g v {\rm d} s.
 \end{align}
 $$
 
