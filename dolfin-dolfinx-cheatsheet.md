@@ -15,7 +15,7 @@ from petsc4py import PETSc
 
 DOLFINx does no longer use wildcard imports. Some of the reasons for this are for instance listed at: <https://rules.sonarsource.com/python/RSPEC-2208>
 
-However, many code with legacy DOLFIN used wildcard imports:
+However, wildcard imports have often been used for DOLFIN:
 
 ```python
 from dolfin import *
@@ -222,12 +222,14 @@ DirichletBC bc(V, uD, dirichlet_boundary);
 ## Define a variational problem
 
 The variational problem
+
 $$
  \begin{align}
  a(u, v) &:= \int_{\Omega} \nabla u \cdot \nabla v \, {\rm d} x, \\
  L(v)    &:= \int_{\Omega} f v \, {\rm d} x + \int_{\Gamma_{N}} g v \, {\rm d} s.
 \end{align}
 $$
+
 with
 $g = \sin(5x)$
 and
@@ -335,12 +337,18 @@ file << uh;
 
 ## Assemble the matrix and RHS vector
 
+Note that the input to `assemble_matrix` is not a `ufl.form` but a `dolfinx.fem.Form`, which means that code has been generated or fetched from cache. This means repeated assembly does not search through cache, which `assemble_system` will do at every call (which can get costly if you have compiled a lot of forms and have to search through the cache).
+It also means that if you re-assign variables after calling `fem.form`, the changes are clearly not going to be taken into account in the `dolfinx.fem.form`. Thus it clearly separates when JIT compilation happens.
+
 ### DOLFINx (Python)
 
 ```python
-A = fem.petsc.assemble_matrix(a)
+a_fem = fem.form(a)
+L_fem = fem.form(L)
+
+A = fem.petsc.assemble_matrix(a_fem)
 A.assemble()
-b = fem.petsc.assemble_vector(L)
+b = fem.petsc.assemble_vector(L_fem)
 bcs = [bc] # collect boundary conditions
 fem.petsc.apply_lifting(b, [a], bcs=[bcs])
 ```
