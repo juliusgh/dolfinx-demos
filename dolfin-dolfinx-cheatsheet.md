@@ -13,6 +13,10 @@ from petsc4py import PETSc
 
 ### DOLFIN (Python)
 
+DOLFINx does no longer use wildcard imports. Some of the reasons for this are for instance listed at: <https://rules.sonarsource.com/python/RSPEC-2208>
+
+However, many code with legacy DOLFIN used wildcard imports:
+
 ```python
 from dolfin import *
 ```
@@ -36,6 +40,8 @@ using namespace dolfin;
 ## Create a mesh
 
 As an example, we create a mesh consisting of 32 x 32 triangles on the unit square $\Omega = [0,1] \times [0,1]$.
+
+Note that not all of the entries in `mesh.create_unit_square` and `mesh.create_rectangle` are required as they have defaults, e.g. for `cell type`.
 
 ### DOLFINx (Python)
 
