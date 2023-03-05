@@ -19,4 +19,4 @@ The materials have been created in the scope of the course [Simulation Software 
 ## Other resources
 
 - [DOLFIN to DOLFINx cheatsheet](dolfin-dolfinx-cheatsheet.md): Could be helpful for people transitioning from legacy DOLFIN/FEniCS to the new DOLFINx/FEniCSx
-- [Report for the course Simulation Software Engineering](report): Contains a very compact overview about the FEniCS(x) software
+- [Report for the course Simulation Software Engineering](report): Contains a very compact overview of the FEniCS(x) software
