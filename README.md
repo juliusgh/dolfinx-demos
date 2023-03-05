@@ -2,7 +2,7 @@
 
 This repository contains some demos and resources for the Finite Element software [DOLFINx](https://github.com/FEniCS/dolfinx), which is part of [FEniCSx](https://github.com/FEniCS).
 
-The material has been created in the scope of the course [Simulation Software Engineering](https://github.com/Simulation-Software-Engineering) at the University of Stuttgart.
+The materials have been created in the scope of the course [Simulation Software Engineering](https://github.com/Simulation-Software-Engineering) at the University of Stuttgart.
 
 ## Demos
 
@@ -14,9 +14,9 @@ The material has been created in the scope of the course [Simulation Software En
 
 ### C++ demos
 
-- [Solve the biharmonic equation using a discontinuous Galerkin method](python/demo_biharmonic.ipynb)
+- [Solve the biharmonic equation using a discontinuous Galerkin method](cpp/biharmonic/)
 
 ## Other resources
 
-- [DOLFIN to DOLFINx cheatsheet](dolfin-dolfinx-cheatsheet.md): Could be helpful for the transitioning from legacy DOLFIN/FEniCS to the new DOLFINx/FEniCSx
+- [DOLFIN to DOLFINx cheatsheet](dolfin-dolfinx-cheatsheet.md): Could be helpful for people transitioning from legacy DOLFIN/FEniCS to the new DOLFINx/FEniCSx
 - [Report for the course Simulation Software Engineering](report): Contains a very compact overview about the FEniCS(x) software
