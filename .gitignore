@@ -136,3 +136,6 @@ _petsc*
 # Files created by demos
 core
 log.txt
+
+# Include report Makefile
+!report/Makefile
