@@ -1,6 +1,6 @@
 # DOLFIN/DOLFINx Cheat Sheet
 
-This cheat sheet can serve as a compact lookup table when migrating code for legacy DOLFIN to the new DOLFINx. For more details and background information you should consider following resources:
+This cheat sheet can serve as a compact lookup table for people transitioning from legacy DOLFIN to the new DOLFINx. For more details and background information you should consider following resources:
 
 - <https://docs.fenicsproject.org/dolfinx/main/python/>
 - <https://docs.fenicsproject.org/dolfinx/main/cpp/>

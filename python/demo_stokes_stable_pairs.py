@@ -103,22 +103,17 @@ import numpy as np
 
 import ufl
 from dolfinx import fem
-from dolfinx.fem import (
-    Constant,
-    Function,
-    FunctionSpace,
-    dirichletbc,
-    form,
-    locate_dofs_topological,
-)
+from dolfinx.fem import (Constant, Function, FunctionSpace, dirichletbc, form,
+                         locate_dofs_topological)
 from dolfinx.io import XDMFFile
-from dolfinx.mesh import CellType, GhostMode, create_rectangle, locate_entities_boundary
+from dolfinx.mesh import (CellType, GhostMode, create_rectangle,
+                          locate_entities_boundary)
 from ufl import div, dx, grad, inner
 
 from mpi4py import MPI
 from petsc4py import PETSc
-# -
 
+# -
 
 # We create a {py:class}`Mesh <dolfinx.mesh.Mesh>`, define functions to
 # geometrically locate subsets of its boundary and define a function
@@ -127,21 +122,17 @@ from petsc4py import PETSc
 
 # +
 # Create mesh
-msh = create_rectangle(
-    MPI.COMM_WORLD,
-    [np.array([0, 0]), np.array([1, 1])],
-    [32, 32],
-    CellType.triangle,
-    GhostMode.none,
-)
+msh = create_rectangle(MPI.COMM_WORLD,
+                       [np.array([0, 0]), np.array([1, 1])],
+                       [32, 32],
+                       CellType.triangle, GhostMode.none)
 
 
 # Function to mark x = 0, x = 1 and y = 0
 def noslip_boundary(x):
-    return np.logical_or(
-        np.logical_or(np.isclose(x[0], 0.0), np.isclose(x[0], 1.0)),
-        np.isclose(x[1], 0.0),
-    )
+    return np.logical_or(np.logical_or(np.isclose(x[0], 0.0),
+                                       np.isclose(x[0], 1.0)),
+                         np.isclose(x[1], 0.0))
 
 
 # Function to mark the lid (y = 1)
@@ -210,13 +201,10 @@ def define_weak_form(u, p, v, q):
     # Define variational problem
     f = Constant(msh, (PETSc.ScalarType(0), PETSc.ScalarType(0)))
 
-    a = form(
-        [
-            [inner(grad(u), grad(v)) * dx, inner(p, div(v)) * dx],
-            [inner(div(u), q) * dx, None],
-        ]
-    )
-    L = form([inner(f, v) * dx, inner(Constant(msh, PETSc.ScalarType(0)), q) * dx])
+    a = form([[inner(grad(u), grad(v)) * dx, inner(p, div(v)) * dx],
+              [inner(div(u), q) * dx, None]])
+    L = form([inner(f, v) * dx,
+              inner(Constant(msh, PETSc.ScalarType(0)), q) * dx])
     return a, L
 
 
@@ -272,7 +260,7 @@ def solve_system(A, b, msh, V):
     V_map = V.dofmap.index_map
     offset = V_map.size_local * V.dofmap.index_map_bs
     u.x.array[:offset] = x.array_r[:offset]
-    p.x.array[: (len(x.array_r) - offset)] = x.array_r[offset:]
+    p.x.array[:(len(x.array_r) - offset)] = x.array_r[offset:]
     return u, p
 
 
@@ -295,22 +283,14 @@ coef_norm_p_1 = p.x.norm()
 l2_norm_u_1 = l2_norm(u)
 l2_norm_p_1 = l2_norm(p)
 if MPI.COMM_WORLD.rank == 0:
-    print(
-        "(1) Norm of velocity coeff. vector "
-        "with the Taylor-Hood element:      {}".format(coef_norm_u_1)
-    )
-    print(
-        "(1) Norm of pressure coeff. vector "
-        "with the Taylor-Hood element:      {}".format(coef_norm_p_1)
-    )
-    print(
-        "(1) L2 Norm of the velocity field "
-        "with the Taylor-Hood element:       {}".format(l2_norm_u_1)
-    )
-    print(
-        "(1) L2 Norm of pressure field "
-        "with the Taylor-Hood element:           {}".format(l2_norm_p_1)
-    )
+    print("(1) Norm of velocity coeff. vector "
+          "with the Taylor-Hood element:      {}".format(coef_norm_u_1))
+    print("(1) Norm of pressure coeff. vector "
+          "with the Taylor-Hood element:      {}".format(coef_norm_p_1))
+    print("(1) L2 Norm of the velocity field "
+          "with the Taylor-Hood element:       {}".format(l2_norm_u_1))
+    print("(1) L2 Norm of pressure field "
+          "with the Taylor-Hood element:           {}".format(l2_norm_p_1))
 
 
 # -
@@ -364,22 +344,14 @@ coef_norm_p_2 = p.x.norm()
 l2_norm_u_2 = l2_norm(u)
 l2_norm_p_2 = l2_norm(p)
 if MPI.COMM_WORLD.rank == 0:
-    print(
-        "(2) Norm of velocity coeff. vector "
-        "with the MINI element:             {}".format(coef_norm_u_2)
-    )
-    print(
-        "(2) Norm of pressure coeff. vector "
-        "with the MINI element:             {}".format(coef_norm_p_2)
-    )
-    print(
-        "(2) L2 Norm of the velocity field "
-        "with the MINI element:              {}".format(l2_norm_u_2)
-    )
-    print(
-        "(2) L2 Norm of pressure field "
-        "with the MINI element:                  {}".format(l2_norm_p_2)
-    )
+    print("(2) Norm of velocity coeff. vector "
+          "with the MINI element:             {}".format(coef_norm_u_2))
+    print("(2) Norm of pressure coeff. vector "
+          "with the MINI element:             {}".format(coef_norm_p_2))
+    print("(2) L2 Norm of the velocity field "
+          "with the MINI element:              {}".format(l2_norm_u_2))
+    print("(2) L2 Norm of pressure field "
+          "with the MINI element:                  {}".format(l2_norm_p_2))
 save_solution(u, "out_stokes_stable_pairs/2_velocity.xdmf")
 save_solution(p, "out_stokes_stable_pairs/2_pressure.xdmf")
 
@@ -415,22 +387,14 @@ coef_norm_p_3 = p.x.norm()
 l2_norm_u_3 = l2_norm(u)
 l2_norm_p_3 = l2_norm(p)
 if MPI.COMM_WORLD.rank == 0:
-    print(
-        "(3) Norm of velocity coeff. vector "
-        "with the Crouzeix-Raviart element: {}".format(coef_norm_u_3)
-    )
-    print(
-        "(3) Norm of pressure coeff. vector "
-        "with the Crouzeix-Raviart element: {}".format(coef_norm_p_3)
-    )
-    print(
-        "(3) L2 Norm of the velocity field "
-        "with the Crouzeix-Raviart element:  {}".format(l2_norm_u_3)
-    )
-    print(
-        "(3) L2 Norm of pressure field "
-        "with the Crouzeix-Raviart element:      {}".format(l2_norm_p_3)
-    )
+    print("(3) Norm of velocity coeff. vector "
+          "with the Crouzeix-Raviart element: {}".format(coef_norm_u_3))
+    print("(3) Norm of pressure coeff. vector "
+          "with the Crouzeix-Raviart element: {}".format(coef_norm_p_3))
+    print("(3) L2 Norm of the velocity field "
+          "with the Crouzeix-Raviart element:  {}".format(l2_norm_u_3))
+    print("(3) L2 Norm of pressure field "
+          "with the Crouzeix-Raviart element:      {}".format(l2_norm_p_3))
 save_solution(u, "out_stokes_stable_pairs/3_velocity.xdmf")
 save_solution(p, "out_stokes_stable_pairs/3_pressure.xdmf")
 
@@ -479,9 +443,9 @@ a = inner(grad(u), grad(v)) * dx + r * inner(div(u), div(v)) * dx
 L = inner(f, v) * dx + inner(div(w), div(v)) * dx
 
 bcs = define_bcs(V)
-problem = fem.petsc.LinearProblem(
-    a, L, bcs=bcs, petsc_options={"ksp_type": "preonly", "pc_type": "lu"}
-)
+problem = fem.petsc.LinearProblem(a, L, bcs=bcs,
+                                  petsc_options={"ksp_type": "preonly",
+                                                 "pc_type": "lu"})
 # Iterate to fix point
 iters = 0
 max_iters = 100
@@ -494,7 +458,7 @@ while iters < max_iters and u_m_u > 1e-8:
         u_m_u = (u.vector - u_old_vec).norm(2)
     u_old_vec = u.vector.copy()
     iters += 1
-    print(f"iteration {iters}: u_m_u = {u_m_u}")
+    print(f'iteration {iters}: u_m_u = {u_m_u}')
 
 
 # -
@@ -539,22 +503,14 @@ coef_norm_p_4 = p.x.norm()
 l2_norm_u_4 = l2_norm(u)
 l2_norm_p_4 = l2_norm(p)
 if MPI.COMM_WORLD.rank == 0:
-    print(
-        "(4) Norm of velocity coeff. vector "
-        "with the Scott-Vogelius element:   {}".format(coef_norm_u_4)
-    )
-    print(
-        "(4) Norm of pressure coeff. vector "
-        "with the Scott-Vogelius element:   {}".format(coef_norm_p_4)
-    )
-    print(
-        "(4) L2 Norm of the velocity field "
-        "with the Scott-Vogelius element:    {}".format(l2_norm_u_4)
-    )
-    print(
-        "(4) L2 Norm of pressure field "
-        "with the Scott-Vogelius element:        {}".format(l2_norm_p_4)
-    )
+    print("(4) Norm of velocity coeff. vector "
+          "with the Scott-Vogelius element:   {}".format(coef_norm_u_4))
+    print("(4) Norm of pressure coeff. vector "
+          "with the Scott-Vogelius element:   {}".format(coef_norm_p_4))
+    print("(4) L2 Norm of the velocity field "
+          "with the Scott-Vogelius element:    {}".format(l2_norm_u_4))
+    print("(4) L2 Norm of pressure field "
+          "with the Scott-Vogelius element:        {}".format(l2_norm_p_4))
 save_solution(u, "out_stokes_stable_pairs/4_velocity.xdmf")
 save_solution(p, "out_stokes_stable_pairs/4_pressure.xdmf")
 

@@ -93,13 +93,10 @@ from petsc4py.PETSc import ScalarType
 # finite element {py:class}`FunctionSpace <dolfinx.fem.FunctionSpace>`
 # $V$ on the mesh.
 
-msh = mesh.create_rectangle(
-    comm=MPI.COMM_WORLD,
-    points=((0.0, 0.0), (1.0, 1.0)),
-    n=(10, 10),
-    cell_type=mesh.CellType.triangle,
-    ghost_mode=mesh.GhostMode.none,
-)
+msh = mesh.create_rectangle(comm=MPI.COMM_WORLD,
+                            points=((0.0, 0.0), (1.0, 1.0)), n=(10, 10),
+                            cell_type=mesh.CellType.triangle,
+                            ghost_mode=mesh.GhostMode.none)
 V = fem.FunctionSpace(msh, ("Lagrange", 2))
 
 # The second argument to {py:class}`FunctionSpace
@@ -131,7 +128,7 @@ dofs = fem.locate_dofs_topological(V=V, entity_dim=1, entities=facets)
 # interpolating the expression $u_{\rm D}$ onto the finite element space $V$.
 
 uD = fem.Function(V, dtype=ScalarType)
-uD.interpolate(lambda x: 1 + x[0] ** 2 + 2 * x[1] ** 2)
+uD.interpolate(lambda x: 1 + x[0]**2 + 2 * x[1]**2)
 bc = fem.dirichletbc(value=uD, dofs=dofs)
 
 # Next, we express the variational problem using UFL.
@@ -160,9 +157,9 @@ M = action(a, ui)
 # To validate the results of the matrix-free solvers, we first compute the
 # solution with a direct solver using the assembled matrix.
 
-problem = fem.petsc.LinearProblem(
-    a, L, bcs=[bc], petsc_options={"ksp_type": "preonly", "pc_type": "lu"}
-)
+problem = fem.petsc.LinearProblem(a, L, bcs=[bc],
+                                  petsc_options={"ksp_type": "preonly",
+                                                 "pc_type": "lu"})
 uh_lu = problem.solve()
 
 
@@ -171,9 +168,9 @@ uh_lu = problem.solve()
 
 # +
 def L2Norm(u):
-    return np.sqrt(
-        msh.comm.allreduce(fem.assemble_scalar(fem.form(inner(u, u) * dx)), op=MPI.SUM)
-    )
+    return np.sqrt(msh.comm.allreduce(
+        fem.assemble_scalar(fem.form(inner(u, u) * dx)),
+        op=MPI.SUM))
 
 
 error_L2_lu = L2Norm(uh_lu - uD)
@@ -216,7 +213,8 @@ max_iter = 200
 def action_A(x):
     # Update coefficient ui of the linear form M
     x.copy(ui.vector)
-    ui.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+    ui.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT,
+                          mode=PETSc.ScatterMode.FORWARD)
 
     # Compute action of A on x using the linear form M
     y = fem.petsc.assemble_vector(fem.form(M))
@@ -224,7 +222,8 @@ def action_A(x):
     # Set BC dofs to zero (effectively zeroes rows of A)
     with y.localForm() as y_local:
         fem.set_bc(y_local, [bc], scale=0.0)
-    y.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
+    y.ghostUpdate(addv=PETSc.InsertMode.ADD,
+                  mode=PETSc.ScatterMode.REVERSE)
     return y
 
 
@@ -243,7 +242,8 @@ def cg(action_A, b, x, max_iter=200, rtol=1e-6):
     # Create work vector for the search direction p
     p = r.duplicate()
     r.copy(p)
-    p.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+    p.ghostUpdate(addv=PETSc.InsertMode.INSERT,
+                  mode=PETSc.ScatterMode.FORWARD)
     r_norm2 = r.dot(r)
     r0_norm2 = r_norm2
     eps = rtol**2
@@ -287,7 +287,8 @@ uh_cg1 = fem.Function(V, dtype=ScalarType)
 iter_cg1 = cg(action_A, b, uh_cg1.vector, max_iter=max_iter, rtol=rtol)
 
 # Set BC values in the solution vectors
-uh_cg1.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+uh_cg1.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT,
+                          mode=PETSc.ScatterMode.FORWARD)
 with uh_cg1.vector.localForm() as y_local:
     fem.set_bc(y_local, [bc], scale=1.0)
 
@@ -325,7 +326,8 @@ class Poisson:
 
 A = PETSc.Mat()
 A.create(comm=msh.comm)
-A.setSizes(((b.local_size, PETSc.DETERMINE), (b.local_size, PETSc.DETERMINE)), bsize=1)
+A.setSizes(((b.local_size, PETSc.DETERMINE),
+            (b.local_size, PETSc.DETERMINE)), bsize=1)
 A.setType(PETSc.Mat.Type.PYTHON)
 A.setPythonContext(Poisson())
 A.setUp()
@@ -364,7 +366,8 @@ uh_cg2 = fem.Function(V)
 solver.solve(b, uh_cg2.vector)
 
 # Set BC values in the solution vectors
-uh_cg2.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+uh_cg2.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT,
+                          mode=PETSc.ScatterMode.FORWARD)
 with uh_cg2.vector.localForm() as y_local:
     fem.set_bc(y_local, [bc], scale=1.0)
 
@@ -442,7 +445,8 @@ class CG(CustomKSP):
 
         # Create work vector for the search direction p
         r.copy(p)
-        p.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+        p.ghostUpdate(addv=PETSc.InsertMode.INSERT,
+                      mode=PETSc.ScatterMode.FORWARD)
         r_norm2 = r.dot(r)
         self.r0_norm2 = r_norm2
         while not self.converged(ksp, r):
@@ -487,7 +491,8 @@ uh_cg3 = fem.Function(V)
 solver.solve(b, uh_cg3.vector)
 
 # Set BC values in the solution vectors
-uh_cg3.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+uh_cg3.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT,
+                          mode=PETSc.ScatterMode.FORWARD)
 with uh_cg3.vector.localForm() as y_local:
     fem.set_bc(y_local, [bc], scale=1.0)
 
