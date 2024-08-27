@@ -11,7 +11,7 @@ git clone https://github.com/FEniCS/ufl.git
 git clone https://github.com/FEniCS/ffcx.git
 # Install dependencies
 pip3 install numpy matplotlib pybind11 mpi4py
-sudo apt install -y libblas-dev liblapack-dev petsc-dev libpugixml-dev libboost-all-dev pkg-config libparmetis-dev mpich libhdf5-mpi-dev python3-h5py-mpi
+sudo apt install -y libblas-dev liblapack-dev petsc-dev libpugixml-dev libboost-all-dev pkg-config libparmetis-dev mpich libhdf5-mpi-dev python3-h5py-mpi libspdlog-dev
 # Build basix
 mkdir -p basix/cpp/build
 cd basix/cpp/build
